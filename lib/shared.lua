@@ -22,6 +22,18 @@ function Shared.who(b)
 end
 
 function Shared.species(mod, def)
+  -- A mon is only as loadable as its typing. If it names a type that is not
+  -- in the chart -- almost always because the types layer that adds it was
+  -- switched off -- skip the whole species and say why, rather than
+  -- registering something whose type nothing can resolve.
+  for _, t in ipairs(def.types or {}) do
+    if mod.content.type_chart:get(t) == nil then
+      mod.log:warn("%s needs the %s type, which is not loaded -- skipped",
+        def.id, t)
+      return nil
+    end
+  end
+
   local icon = def.icon or "MON"
   local cry = def.cry or "PIDGEY"
   def.icon, def.cry = nil, nil
